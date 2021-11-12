@@ -45,3 +45,25 @@ task texturePacker {
         TexturePacker.process("assets.src/", "android/assets/", "main")
     }
 }
+
+apply plugin: "org.hidetake.ssh"
+remotes {
+    testServer {
+        host = '134.249.111.57'
+        user = 'user1'
+        identity = file(System.properties['user.home'] + '/.ssh/id_rsa')
+    }
+}
+
+task deployToTestServer {
+	dependsOn dist
+    doLast {
+        ssh.run {
+            session(remotes.testServer) {
+                put from: buildDir.path + "/libs/desktop-1.0.jar", into: 'files/desktop.jar'
+            }
+        }
+
+    }
+}
+
